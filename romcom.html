@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Report on the RomCom Ransomware Actor</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        ul, ol { margin-bottom: 1em; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<h1>Detailed Report on the RomCom Ransomware Actor</h1>
+
+<h2>Executive Summary</h2>
+<p>The RomCom threat actor, also tracked as Storm-0978, UAT-5647, Tropical Scorpius, and Void Rabisu, is a Russia-aligned cyber espionage group that has evolved into a hybrid actor blending state-sponsored intelligence gathering with financially motivated ransomware operations. Active since at least 2022, RomCom initially targeted Ukrainian and NATO-affiliated entities but expanded to private sectors in Europe, North America, and the UK by 2025. The group employs sophisticated phishing, zero-day exploits, and custom malware like SnipBot for initial access, persistence, and data exfiltration. While ransomware deployment (e.g., Cuba and Underground strains) supports double-extortion tactics, recent activities emphasize espionage over immediate financial gain. No credible references linking RomCom to Netwalker were identified in available sources; any perceived connection may stem from misattribution or unrelated ransomware nomenclature.</p>
+
+<h2>Overview and Aliases</h2>
+<p>RomCom is described as an evolving, sophisticated threat actor group specializing in espionage and financially motivated attacks. The group aligns with Russian strategic interests, targeting military personnel, government agencies, political leaders, and private industries in Ukraine, Poland, NATO countries, the UK, Europe, Canada, and North America. Key aliases include:</p>
+<ul>
+    <li>Storm-0978 (Microsoft attribution)</li>
+    <li>UAT-5647</li>
+    <li>Tropical Scorpius</li>
+    <li>Void Rabisu (Trend Micro)</li>
+</ul>
+<p>First observed in 2022, RomCom's operations demonstrate adaptability, shifting from regional espionage to global hybrid threats by 2025.</p>
+
+<h2>History and Evolution</h2>
+<p>RomCom emerged in 2022 with campaigns spoofing popular apps to target Ukrainian military entities, abusing tools like KeePass and SolarWinds for credential theft and persistence. By mid-2023, the group conducted phishing against defense and government sectors in Europe and North America, using lures tied to NATO and Ukrainian politics. This marked a pivot from pure espionage to include financial motives, with ransomware deployments noted in late 2023.</p>
+<p>In 2024, RomCom exploited high-profile zero-days, such as CVE-2023-36884 (Microsoft Word RCE) and CVE-2024-9680 (Firefox use-after-free, chained with CVE-2024-49039 for privilege escalation). Targets broadened to English-speaking regions, with malware variants like PEAPOD (RomCom 4.0) enhancing evasion. By 2025, the actor aggressively targeted private sectors—retail, hospitality, critical infrastructure, financial, manufacturing, defense, and logistics—via spear-phishing and compromised portals. This evolution reflects a convergence of cyberwarfare and cybercrime, with RomCom maintaining ties to a Russia-linked ecosystem.</p>
+
+<h2>Tactics, Techniques, and Procedures (TTPs)</h2>
+<p>RomCom's TTPs map to the MITRE ATT&CK framework, emphasizing social engineering and exploitation:</p>
+<ul>
+    <li><strong>Initial Access (TA0001)</strong>: Spear-phishing attachments (T1566.001) with malicious .exe disguised as .pdf, weaponized Office docs, or password-protected .rar/.zip archives; drive-by compromises (T1189) via URLs like gdrive-share[.]online; abuse of external portals (e.g., customer feedback forms).</li>
+    <li><strong>Execution (TA0002)</strong>: User execution of malicious files (T1204.002); exploitation of public-facing apps (T1190), including zero-days like CVE-2025-8088 (WinRAR path traversal).</li>
+    <li><strong>Persistence (TA0003)</strong>: DLL search order hijacking (T1574.001); registry run keys/startup folders (T1547.001); COM hijacking (e.g., CLSID registry manipulation).</li>
+    <li><strong>Privilege Escalation (TA0004)</strong>: Exploitation for client execution (T1203), e.g., chained Firefox/Windows vulns.</li>
+    <li><strong>Defense Evasion (TA0005)</strong>: Code signing abuse (T1553.002) with fraudulent certificates; virtualization/sandbox evasion (T1497.001) via registry checks (e.g., ≥55/100 recent documents in HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs; Shell Bags); window message-based obfuscation.</li>
+    <li><strong>Credential Access (TA0006)</strong>: SAM dumping (T1003.002).</li>
+    <li><strong>Discovery (TA0007)</strong>: System information gathering (T1082); network reconnaissance (e.g., domain controller info via AD Explorer).</li>
+    <li><strong>Lateral Movement (TA0008)</strong>: SMB/Windows admin shares (T1021.002, SMBExec); WMI (T1047, WMIExec).</li>
+    <li><strong>Collection (TA0009)</strong>: Data from local system (T1005).</li>
+    <li><strong>Exfiltration (TA0010)</strong>: Over C2 channels (T1041), targeting files like .pdf, .doc, .db, .mp4.</li>
+    <li><strong>Impact (TA0040)</strong>: Data encrypted for impact (T1486) via ransomware.</li>
+</ul>
+<p>C2 infrastructure includes domains like xeontime.com, cethernet.com, and IPs such as 91.92.250.104.</p>
+
+<h2>Malware Variants</h2>
+<p>RomCom's modular malware ecosystem has advanced rapidly:</p>
+<ul>
+    <li><strong>ROMCOM RAT/Backdoor</strong>: Core tool for info theft and secondary payload deployment.</li>
+    <li><strong>MeltingClaw/RustyClaw</strong>: Rust-based phishing downloaders.</li>
+    <li><strong>DustyHammock</strong>: Rust backdoor for persistence and C2.</li>
+    <li><strong>ShadyHammock</strong>: C++ component loading XOR-encoded SingleCamper RAT DLL from registry.</li>
+    <li><strong>SlipScreen</strong>: 2025 Rust/C++ loader masquerading as PDF reader; decrypts shellcode, uses COM hijacking.</li>
+    <li><strong>SnipBot (RomCom 5.0/SingleCamper RAT)</strong>: Multistage backdoor with 27 commands for execution, file ops, reconnaissance, and exfiltration; anti-sandbox checks, encrypted strings, dynamic API resolution; downloads tools like Plink.exe (SSH tunneling), 7-Zip (archiving), and custom DLLs (e.g., SnippingTool.dll for screenshots). Active since Dec 2023, focused on espionage.</li>
+    <li><strong>PEAPOD (RomCom 4.0)</strong>: Offshoot with enhanced obfuscation.</li>
+    <li><strong>Mythic Agent</strong>: Cross-platform backdoor used in 2025 campaigns.</li>
+</ul>
+
+<h2>Key Campaigns</h2>
+<ul>
+    <li><strong>2022–2023</strong>: UAT-5647 (Ukraine/Poland targets); KeePass/SolarWinds abuse (Ukraine/UK).</li>
+    <li><strong>Operation Deceptive Prospect (Apr 2025)</strong>: UK retail/hospitality/critical infrastructure via feedback portals.</li>
+    <li><strong>Void Rabisu (2023)</strong>: Financially motivated ransomware shifts.</li>
+    <li><strong>SnipBot Campaigns (2024–2025)</strong>: IT, legal, agriculture; post-infection recon and exfil.</li>
+</ul>
+
+<h2>Ransomware Activities</h2>
+<p>RomCom integrates ransomware into espionage ops, deploying strains like Industrial Spy, Underground, and Cuba in double-extortion schemes (encryption + data leaks). Early uses (2023) focused on financial gain, but by 2025, ransomware supports broader monetization within intelligence-driven attacks. No SnipBot incidents involved direct ransomware, indicating a tactical shift toward data theft.</p>
+
+<h2>Connections to Other Actors</h2>
+<p>RomCom overlaps with UNK_GreenSec (shared TransferLoader and REM Proxy on compromised MikroTik routers). Infrastructure and delivery ties exist to the Cuba ransomware ecosystem, suggesting a Russia-linked network blending state and crime actors. No references to Netwalker ransomware (active 2019–2021, focused on healthcare) were found; searches yielded no overlaps.</p>
+
+<h2>Recent Activities (2025)</h2>
+<ul>
+    <li><strong>WinRAR Zero-Day Exploitation (Jul–Aug 2025)</strong>: CVE-2025-8088 (CVSS 8.4) via spear-phishing RAR archives disguised as job docs (e.g., CVs); targeted financial/manufacturing/defense/logistics in Europe/Canada; delivered SnipBot, RustyClaw, Mythic; patched Jul 30 after ESET disclosure. No confirmed compromises.</li>
+    <li><strong>Ongoing Spear-Phishing</strong>: Job applications/complaints lures; portal abuse in UK/Europe.</li>
+    <li><strong>Sector Expansion</strong>: Private industry focus, with espionage-ransomware hybrid ops.</li>
+</ul>
+
+<h2>Mitigation Recommendations</h2>
+<ul>
+    <li>Patch promptly: WinRAR (≥7.13), Firefox, Windows, Microsoft Office.</li>
+    <li>Email filters: Block .rar/.zip attachments; scan for anomalies.</li>
+    <li>EDR: Monitor registry (RecentDocs, CLSID), COM hijacking, window messages.</li>
+    <li>User training: Verify lures (e.g., distorted PDFs).</li>
+    <li>Network segmentation: Limit SMB/WMI; monitor C2 domains.</li>
+    <li>Behavioral analytics: Detect sandbox evasion, dynamic API calls.</li>
+</ul>
+
+<h2>References</h2>
+<p>This report draws from cybersecurity analyses up to November 2025. Primary sources include Picus Security, Malpedia, Unit 42 (Palo Alto Networks), and ESET Research.</p>
+
+</body>
+</html>
